@@ -433,6 +433,15 @@ class LayoutParsingResultV2(BaseCVResult, HtmlMixin, XlsxMixin, MarkdownMixin):
             "seal": format_seal_func,
         }
 
+        # 替换符
+        post_process_dict = {
+            "table": "此处要被替换",
+            "image": "此处要被替换",
+            # "chart": "",
+            # "seal": "",
+            # "formula": ""
+        }
+        
         markdown_content = ""
         last_label = None
         seg_start_flag = True
@@ -467,6 +476,12 @@ class LayoutParsingResultV2(BaseCVResult, HtmlMixin, XlsxMixin, MarkdownMixin):
                         if markdown_content
                         else handle_func(block)
                     )
+                
+                # Add label clarifications
+                if label in post_process_dict:
+                    insert_text = post_process_dict[label]
+                    markdown_content += f"\n\n{insert_text}\n\n"
+                    
                 last_label = label
         page_first_element_seg_start_flag = (
             True
