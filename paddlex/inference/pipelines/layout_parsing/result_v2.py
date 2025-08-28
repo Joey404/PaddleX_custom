@@ -337,6 +337,29 @@ class LayoutParsingResultV2(BaseCVResult, HtmlMixin, XlsxMixin, MarkdownMixin):
                 res_xlsx_dict[key] = table_res.xlsx["pred"]
         return res_xlsx_dict
 
+
+    post_process_dict = {}
+
+
+    @classmethod
+    def post_process_dict_edit(cls, target_label: str):
+        cls.post_process_dict.clear()
+        target_label_list = target_label.replace(" ", "").lower().split(",")
+        for label in target_label_list:
+            if label == "table":
+                cls.post_process_dict["table"] = "此处要被替换"
+            elif label == "image":
+                cls.post_process_dict["image"] = "此处要被替换"
+            elif label == "chart":
+                cls.post_process_dict["chart"] = "此处要被替换"
+            elif label == "seal":
+                cls.post_process_dict["seal"] = "此处要被替换"
+            elif label == "formula":
+                cls.post_process_dict["formula"] = "此处要被替换"
+            else:
+                print(f"{label} not supported")
+    
+
     def _to_markdown(self, pretty=True) -> dict:
         """
         Save the parsing result to a Markdown file.
@@ -433,15 +456,6 @@ class LayoutParsingResultV2(BaseCVResult, HtmlMixin, XlsxMixin, MarkdownMixin):
             "seal": format_seal_func,
         }
 
-        # 替换符
-        post_process_dict = {
-            "table": "此处要被替换",
-            "image": "此处要被替换",
-            # "chart": "",
-            # "seal": "",
-            # "formula": ""
-        }
-        
         markdown_content = ""
         last_label = None
         seg_start_flag = True
@@ -476,10 +490,10 @@ class LayoutParsingResultV2(BaseCVResult, HtmlMixin, XlsxMixin, MarkdownMixin):
                         if markdown_content
                         else handle_func(block)
                     )
-                
+
                 # Add label clarifications
-                if label in post_process_dict:
-                    insert_text = post_process_dict[label]
+                if label in type(self).post_process_dict:
+                    insert_text = type(self).post_process_dict[label]
                     markdown_content += f"\n\n{insert_text}\n\n"
                     
                 last_label = label
